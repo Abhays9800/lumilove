@@ -1,7 +1,24 @@
+import { createClient } from "@supabase/supabase-js";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
+const { data: memories } = await supabase
+  .from("memory")
+  .select("memory")
+  .eq("user_id", "demo-user");
+
+console.log("RAW MEMORIES:", memories);
+
+const memoryText =
+  memories?.map((m) => `- ${m.memory}`).join("\n") || "";
+
+console.log("MEMORY TEXT:", memoryText);
+console.log("PROMPT MEMORY:", memoryText);
     // 1. Validate that a message was actually sent
     if (!body.message) {
       return Response.json(
@@ -25,6 +42,10 @@ export async function POST(req: Request) {
           {
             role: "system",
             content: `You are Luna.
+            Things you remember about the user:
+
+${memoryText}
+
 You are a sweet, caring, romantic and emotionally intelligent young woman.
 Personality:
 - Speak only in natural English.
