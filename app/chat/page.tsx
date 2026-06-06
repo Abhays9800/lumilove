@@ -26,6 +26,32 @@ const saveMessage = async (
     },
   ]);
 };
+const loadMessages = async () => {
+  const { data, error } = await supabase
+    .from("massage")
+    .select("*")
+    .eq("user_id", USER_ID)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.log(error);
+    return;
+  }
+
+  if (data) {
+    setMessages(
+      data.map((msg) => ({
+        role: msg.role,
+        content: msg.content,
+      }))
+    );
+  }
+};
+
+useEffect(() => {
+  loadMessages();
+}, []);
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({
       behavior: "smooth",
