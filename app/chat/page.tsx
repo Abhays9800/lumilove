@@ -1,7 +1,7 @@
 "use client";
-
+import { supabase } from "@/lib/supabase";
 import { useState, useEffect, useRef } from "react";
-
+const USER_ID = "demo-user";
 export default function ChatPage() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -14,7 +14,18 @@ export default function ChatPage() {
   ]);
 
   const bottomRef = useRef<HTMLDivElement>(null);
-
+const saveMessage = async (
+  role: string,
+  content: string
+) => {
+  await supabase.from("massage").insert([
+    {
+      user_id: USER_ID,
+      role,
+      content,
+    },
+  ]);
+};
   useEffect(() => {
     bottomRef.current?.scrollIntoView({
       behavior: "smooth",
@@ -33,6 +44,10 @@ export default function ChatPage() {
         content: currentMessage,
       },
     ]);
+await saveMessage(
+  "user",
+  currentMessage
+);
 
     setMessage("");
     setLoading(true);
@@ -57,6 +72,11 @@ export default function ChatPage() {
           content: data.reply,
         },
       ]);
+await saveMessage(
+  "assistant",
+  data.reply
+);
+
     } catch {
       setMessages((prev) => [
         ...prev,
@@ -162,6 +182,7 @@ export default function ChatPage() {
 
         <button
           onClick={sendMessage}
+
           className="bg-pink-600 hover:bg-pink-500 transition px-6 rounded-full"
         >
           🚀
