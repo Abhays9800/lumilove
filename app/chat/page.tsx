@@ -1,11 +1,12 @@
 "use client";
 import { supabase } from "@/lib/supabase";
 import { useState, useEffect, useRef } from "react";
-const [userId, setUserId] = useState("");
+
 export default function ChatPage() {
+
+  const [userId, setUserId] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-
   const [messages, setMessages] = useState([
     {
       role: "assistant",
@@ -68,8 +69,10 @@ useEffect(() => {
   });
 }, []);
 useEffect(() => {
-  loadMessages();
-}, []);
+  if (userId) {
+    loadMessages();
+  }
+}, [userId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({
