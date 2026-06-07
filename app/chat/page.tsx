@@ -47,6 +47,19 @@ const loadMessages = async () => {
     );
   }
 };
+const loginWithGoogle = async () => {
+  await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: "https://lumilove.in/chat",
+    },
+  });
+};
+useEffect(() => {
+  supabase.auth.getUser().then(({ data }) => {
+    console.log("USER:", data.user);
+  });
+}, []);
 
 useEffect(() => {
   loadMessages();
@@ -127,14 +140,21 @@ await saveMessage(
         </div>
 
         <div>
-          <h1 className="font-bold text-lg">
-            Luna
-          </h1>
+  <h1 className="font-bold text-lg">
+    Luna
+  </h1>
 
-          <p className="text-xs text-green-400">
-            Online
-          </p>
-        </div>
+  <p className="text-xs text-green-400">
+    Online
+  </p>
+
+  <button
+    onClick={loginWithGoogle}
+    className="mt-2 bg-white text-black px-3 py-1 rounded-lg text-sm"
+  >
+    Sign in with Google
+  </button>
+</div>
 
       </div>
 
