@@ -1,7 +1,7 @@
 "use client";
 import { supabase } from "@/lib/supabase";
 import { useState, useEffect, useRef } from "react";
-const USER_ID = "demo-user";
+const [userId, setUserId] = useState("");
 export default function ChatPage() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,7 +20,7 @@ const saveMessage = async (
 ) => {
   await supabase.from("massage").insert([
     {
-      user_id: USER_ID,
+      user_id: userId,
       role,
       content,
     },
@@ -30,7 +30,7 @@ const loadMessages = async () => {
   const { data, error } = await supabase
     .from("massage")
     .select("*")
-    .eq("user_id", USER_ID)
+    .eq("user_id", userId)
     .order("created_at", { ascending: true });
 
   if (error) {
@@ -60,7 +60,13 @@ useEffect(() => {
     console.log("USER:", data.user);
   });
 }, []);
-
+useEffect(() => {
+  supabase.auth.getUser().then(({ data }) => {
+    if (data.user) {
+      setUserId(data.user.id);
+    }
+  });
+}, []);
 useEffect(() => {
   loadMessages();
 }, []);
