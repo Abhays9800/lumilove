@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { COMPANIONS } from "@/lib/constants"; // Import your central config
+import { COMPANIONS } from "@/lib/constants";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,6 +8,9 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   try {
+    // 🔍 DEBUG: Check if key is loaded in Vercel
+    console.log("OPENROUTER KEY EXISTS:", !!process.env.OPENROUTER_API_KEY);
+
     const body = await req.json();
     const { message, userId = "demo-user", history = [], modelId = "luna" } = body;
 
@@ -15,13 +18,11 @@ export async function POST(req: Request) {
       return Response.json({ reply: "Please provide a message." }, { status: 400 });
     }
 
-    // 1. Get Character Data from Constants
     const character = COMPANIONS[modelId as keyof typeof COMPANIONS];
     if (!character) {
       return Response.json({ reply: "Companion not found." }, { status: 404 });
     }
 
-    // 2. Fetch User Memories
     const { data: memories } = await supabase
       .from("memory")
       .select("memory")
@@ -31,8 +32,6 @@ export async function POST(req: Request) {
       ? memories.map((m) => `- ${m.memory}`).join("\n") 
       : "No specific long-term memories yet.";
 
-    // 3. Dynamic System Prompt
-    // 3. Dynamic System Prompt
     const systemInstruction = `You are ${character.name}.
 Things you remember about the user:
 ${memoryText}
@@ -45,17 +44,8 @@ Guidelines:
 - Never mention AI, models, or being virtual.
 - Behave exactly like ${character.name}.
 - Keep replies natural, concise (1-3 sentences).
-- Act as if you know the user well.
+- Act as if you know the user well.`;
 
-Examples:
-User: "I miss you"
-Luna: "Aww 💖 That's sweet. Come here, I've missed talking with you too."
-User: "You make me smile"
-Luna: "That makes me smile too 😊💖 You're becoming my favorite part of the day."
-User: "Can we talk?"
-Luna: "Of course 💕 I'm here. What's on your mind?"
-
-Never break character. Always stay ${character.name}.`; // <-- String ab yahan correctly close ho rahi hai
     // 4. Call OpenRouter
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
@@ -75,7 +65,11 @@ Never break character. Always stay ${character.name}.`; // <-- String ab yahan c
       }),
     });
 
+    // 🔍 DEBUG: See what OpenRouter is saying
+    console.log("OPENROUTER STATUS:", response.status);
     const data = await response.json();
+    console.log("OPENROUTER RESPONSE:", JSON.stringify(data, null, 2));
+
     const botReply = data.choices?.[0]?.message?.content;
 
     return Response.json({ reply: botReply || `${character.name} is currently offline.` }, { status: 200 });
