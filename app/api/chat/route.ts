@@ -56,7 +56,7 @@ Guidelines:
         "X-Title": "LumiLove App",
       },
       body: JSON.stringify({
-        model: "google/gemma-2-9b-it:free",
+        model: "nvidia/nemotron-3-ultra-550b-a55b:free",
         messages: [
           { role: "system", content: systemInstruction },
           ...history.map((m: any) => ({ role: m.role, content: m.content })),
