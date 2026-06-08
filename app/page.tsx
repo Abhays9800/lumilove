@@ -16,7 +16,7 @@ export default function HomePage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // DOB States
-  const [isAgeVerified, setIsAgeVerified] = useState(null);
+  const [isAgeVerified, setIsAgeVerified] = useState<boolean | null>(null);
   const [dob, setDob] = useState("");
   const [ageError, setAgeError] = useState("");
 
