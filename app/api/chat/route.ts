@@ -88,7 +88,15 @@ Never break character. Always stay ${character.name}.`;
 
     const data = await response.json();
     const botReply = data.choices?.[0]?.message?.content;
-
+// TEST MEMORY SAVE
+await supabase
+  .from("memory")
+  .insert([
+    {
+      user_id: userId,
+      memory: message
+    }
+  ]);
     return Response.json({ reply: botReply || `${character.name} is currently offline.` }, { status: 200 });
 
   } catch (error) {
